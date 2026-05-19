@@ -1,56 +1,58 @@
 public class Main {
-    
     public static void main(String[] args) {
-        WeightedGraph<String> weightedGraph = new WeightedGraph<>(true);
-        fillWithWeights(weightedGraph);
+        WeightedGraph<String> citiesNetwork = new WeightedGraph<>(true);
+        fillGraphData(citiesNetwork);
 
-        System.out.println("Dijkstra:");
-        Search<String> djk = new DijkstraSearch<>(weightedGraph, "Almaty");
-        outputPath(djk, "Kyzylorda");
+        Vertex<String> startPoint = citiesNetwork.getVertex("Almaty");
+        Vertex<String> endPoint = citiesNetwork.getVertex("Kyzylorda");
 
-
-        System.out.println("--------------------------------");
-
-        UnweightedGraph<String> graph = new UnweightedGraph<>(true);
-        fillWithoutWeights(graph);
-
-        System.out.println("DFS:");
-        Search<String> dfs = new DepthFirstSearch<>(graph, "Almaty");
-        outputPath(dfs, "Kyzylorda");
-
-        System.out.println("--------------------------------");
-
-        System.out.println("BFS:");
-        Search<String> bfs = new BreadthFirstSearch<>(graph, "Almaty");
-        outputPath(bfs, "Kyzylorda");
-    }
-
-    public static void fillWithoutWeights(UnweightedGraph<String> graph) {
-        graph.addEdge("Almaty", "Astana"); // 16 - 19
-        graph.addEdge("Shymkent", "Atyrau");
-        graph.addEdge("Atyrau", "Astana");
-        graph.addEdge("Almaty", "Shymkent");
-        graph.addEdge("Shymkent", "Astana");
-        graph.addEdge("Astana", "Kostanay");
-        graph.addEdge("Shymkent", "Kyzylorda");
-    }
-
-    public static void fillWithWeights(WeightedGraph<String> graph) {
-        graph.addEdge("Almaty", "Astana", 2.1);
-        graph.addEdge("Shymkent", "Atyrau", 7.8);
-        graph.addEdge("Atyrau", "Astana", 7.1);
-        graph.addEdge("Almaty", "Shymkent", 7.2);
-        graph.addEdge("Shymkent", "Astana", 3.9);
-        graph.addEdge("Astana", "Kostanay", 3.5);
-        graph.addEdge("Shymkent", "Kyzylorda", 5.4);
-    }
-
-    public static void outputPath(Search<String> search, String key) {
-        for (String v : search.pathTo(key)) {
-            System.out.print(v + " -> ");
+        if (startPoint == null || endPoint == null) {
+            System.out.println("Error: One of the specified cities was not found.");
+            return;
         }
 
-        System.out.println();
+        System.out.println("=== Dijkstra Shortest Path ===");
+        Search<String> dijkstra = new DijkstraSearch<>(citiesNetwork, startPoint);
+        displayPath(dijkstra, endPoint);
+
+        System.out.println("\n======================\n");
+
+        System.out.println("=== Depth-First Search (DFS) ===");
+        Search<String> dfs = new DepthFirstSearch<>(citiesNetwork, startPoint);
+        displayPath(dfs, endPoint);
+
+        System.out.println("\n======================\n");
+
+        System.out.println("=== Breadth-First Search (BFS) ===");
+        Search<String> bfs = new BreadthFirstSearch<>(citiesNetwork, startPoint);
+        displayPath(bfs, endPoint);
+    }
+
+    public static void fillGraphData(WeightedGraph<String> targetGraph) {
+        targetGraph.addEdge("Almaty", "Astana", 2.1);
+        targetGraph.addEdge("Shymkent", "Atyrau", 7.8);
+        targetGraph.addEdge("Atyrau", "Astana", 7.1);
+        targetGraph.addEdge("Almaty", "Shymkent", 7.2);
+        targetGraph.addEdge("Shymkent", "Astana", 3.9);
+        targetGraph.addEdge("Astana", "Kostanay", 3.5);
+        targetGraph.addEdge("Shymkent", "Kyzylorda", 5.4);
+    }
+
+    public static void displayPath(Search<String> search, Vertex<String> destination) {
+        Iterable<Vertex<String>> path = search.pathTo(destination);
+
+        if (path == null) {
+            System.out.println("No route available.");
+            return;
+        }
+
+        StringBuilder roadBuilder = new StringBuilder();
+        for (Vertex<String> step : path) {
+            if (roadBuilder.length() > 0) {
+                roadBuilder.append(" => ");
+            }
+            roadBuilder.append(step.getData());
+        }
+        System.out.println(roadBuilder.toString());
     }
 }
-
