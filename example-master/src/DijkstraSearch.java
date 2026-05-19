@@ -12,6 +12,7 @@ public class DijkstraSearch<Vertex> extends Search<Vertex> {
         this.graph = graph;
 
         dijkstra();
+
     }
 
     public void dijkstra() {
