@@ -1,72 +1,37 @@
 import java.util.*;
 
-public class DijkstraSearch<Vertex> extends Search<Vertex> {
-    private final Set<Vertex> unsettledNodes;
-    private final Map<Vertex, Double> distances;
-    private final WeightedGraph<Vertex> graph;
+public class DijkstraSearch<V> extends Search<V> {
+    private final Map<Vertex<V>, Double> distances = new HashMap<>();
+    private final PriorityQueue<Vertex<V>> unsettledNodes;
 
-    public DijkstraSearch(WeightedGraph<Vertex> graph, Vertex source) {
+    public DijkstraSearch(WeightedGraph<V> graph, Vertex<V> source) {
         super(source);
-        unsettledNodes = new HashSet<>();
-        distances = new HashMap<>();
-        this.graph = graph;
+        unsettledNodes = new PriorityQueue<>(Comparator.comparing(this::getShortestDistance));
 
-        dijkstra();
-
-    }
-
-    public void dijkstra() {
-        distances.put(source, 0D);
+        distances.put(source, 0.0);
         unsettledNodes.add(source);
 
         while (!unsettledNodes.isEmpty()) {
-            Vertex currentNode = getVertexWithMinimumWeight(unsettledNodes);
-
+            Vertex<V> currentNode = unsettledNodes.poll();
+            if (marked.contains(currentNode)) continue;
             marked.add(currentNode);
-            unsettledNodes.remove(currentNode);
 
-            for (Vertex neighbor : graph.adjacencyList(currentNode)) {
-                double newDistance = getShortestDistance(currentNode) + getDistance(currentNode, neighbor);
+            for (Map.Entry<Vertex<V>, Double> entry : currentNode.getAdjacentVertices().entrySet()) {
+                Vertex<V> neighbor = entry.getKey();
+                double weight = entry.getValue();
+
+                double newDistance = getShortestDistance(currentNode) + weight;
 
                 if (getShortestDistance(neighbor) > newDistance) {
                     distances.put(neighbor, newDistance);
-                    edgeTo.put(neighbor, currentNode); // inverted adding
+                    edgeTo.put(neighbor, currentNode);
                     unsettledNodes.add(neighbor);
                 }
             }
         }
     }
 
-    private double getDistance(Vertex node, Vertex target) {
-        for (Edge<Vertex> edge : graph.getEdges(node)) {
-            if (edge.getDest().equals(target))
-                return edge.getWeight();
-        }
-
-        throw new RuntimeException("Not found!");
-    }
-
-    private Vertex getVertexWithMinimumWeight(Set<Vertex> vertices) {
-        Vertex minimum = null;
-        for (Vertex vertex : vertices) {
-            if (minimum == null) {
-                minimum = vertex;
-
-                continue;
-            }
-
-            if (getShortestDistance(vertex) < getShortestDistance(minimum))
-                minimum = vertex;
-        }
-
-        return minimum;
-    }
-
-    private double getShortestDistance(Vertex destination) {
-        Double d = distances.get(destination);
-
-        return (d == null ? Double.MAX_VALUE : d);
+    private double getShortestDistance(Vertex<V> destination) {
+        return distances.getOrDefault(destination, Double.MAX_VALUE);
     }
 }
-
-
