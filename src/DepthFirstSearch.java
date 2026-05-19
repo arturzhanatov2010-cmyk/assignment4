@@ -1,19 +1,22 @@
 
+import java.util.*;
+public class DepthFirstSearch<V> extends Search<V> {
 
-public class DepthFirstSearch<Vertex> extends Search<Vertex> {
-    public DepthFirstSearch(UnweightedGraph<Vertex> graph, Vertex source) {
+    public DepthFirstSearch(UnweightedGraph<V> graph, Vertex<V> source) {
         super(source);
-
-        dfs(graph, source);
+        dfs(source);
     }
-
-    private void dfs(UnweightedGraph<Vertex> graph, Vertex current) {
+    public DepthFirstSearch(WeightedGraph<V> graph, Vertex<V> source) {
+        super(source);
+        dfs(source);
+    }
+    private void dfs(Vertex<V> current) {
         marked.add(current);
 
-        for (Vertex v : graph.adjacencyList(current)) {
-            if (!marked.contains(v)) {
-                edgeTo.put(v, current);
-                dfs(graph, v);
+        for (Vertex<V> neighbor : current.getAdjacentVertices().keySet()) {
+            if (!marked.contains(neighbor)) {
+                edgeTo.put(neighbor, current);
+                dfs(neighbor);
             }
         }
     }
